@@ -1,13 +1,14 @@
 <template>
-  <div class="card">
-    <slot></slot>
-  </div>
+  <div class="card"><slot></slot></div>
 </template>
 
 <script>
-export default {
-  name: 'BaseCard'
-}
+/**
+ * BaseCard
+ * Layout wrapper for dashboard widgets.
+ * Single responsibility: provide padded, rounded container.
+ */
+export default { name: 'BaseCard' };
 </script>
 
 <style scoped>

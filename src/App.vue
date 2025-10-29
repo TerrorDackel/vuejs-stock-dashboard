@@ -8,26 +8,42 @@
 </template>
 
 <script>
+/**
+ * Root application component.
+ * Demonstrates data loading via stockService and prints a compact preview.
+ * All labels, colors, and UI details are aligned with Figma in later steps.
+ */
 import BaseCard from './components/BaseCard.vue';
 import { stockService } from './services/stockService';
 
 export default {
   name: 'App',
   components: { BaseCard },
-  data: () => ({ loaded: false, preview: '' }),
+
+  /**
+   * Local reactive state.
+   * @returns {{ loaded: boolean, preview: string }}
+   */
+  data() { return { loaded: false, preview: '' }; },
+
+  /**
+   * Lifecycle: load a minimal demo dataset for verification.
+   * Single responsibility: fetch Apple revenue and render a short preview.
+   * Errors are logged and shown as a short message.
+   * @returns {Promise<void>}
+   */
   async created() {
-    /* Demo: load Apple revenue to verify pipeline */
     try {
       const { quarters, series } = await stockService.getRevenue('AAPL');
       this.preview = JSON.stringify({ quarters, series: series.slice(-6) }, null, 2);
     } catch (e) {
+      console.error('[App] load error', e);
       this.preview = 'Error loading data';
-      console.error(e);
     } finally {
       this.loaded = true;
     }
   }
-}
+};
 </script>
 
 <style>
