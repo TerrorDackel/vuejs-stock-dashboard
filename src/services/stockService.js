@@ -1,45 +1,33 @@
-import axios from 'axios';
+import { fetchTab, extractQuarterLabels, getRowByIndex, rowToSeries } from './sheetClient';
+import { ROW_INDEX } from '@/utils/companyMap';
 
-const order = [
-  'Mar 21',
-  'Jun 21',
-  'Sep 21',
-  'Dec 21',
-  'Mar 22',
-  'Jun 22',
-  'Dec 22',
-  'Mar 23',
-  '""',
-  '3 Aug 23',
-  '2 Nov 23',
-  '1 Feb 24',
-  '2 Mai 24'
-];
+export class StockService {
+  constructor() { this.cache = new Map(); }
 
-class StockService {
-
-  constructor() {
-    this.apiClient = axios.create({
-      baseURL: 'https://sheetdb.io/api/v1/h383llrajzdr9'
-    });
-
+  async loadCompanyTab(ticker) {
+    if (this.cache.has(ticker)) return this.cache.get(ticker);
+    const rows = await fetchTab(`$${ticker}`); // tabs named $AAPL, $MSFT, …
+    this.cache.set(ticker, rows);
+    return rows;
   }
 
-  async fetchData(sheetName) {
-    try {
-      const response = await this.apiClient.get(`?sheet=${sheetName}`);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      return [];
-    }
+  async getQuarters(ticker) {
+    const rows = await this.loadCompanyTab(ticker);
+    return extractQuarterLabels(rows);
   }
 
-  async getRevenue(sheetName) {
-    const data = await this.fetchData(sheetName)
-    return order.map(key => data[3][key]);
+  async getSeries(ticker, metric) {
+    const rows = await this.loadCompanyTab(ticker);
+    const quarters = extractQuarterLabels(rows);
+    const index = ROW_INDEX[metric]?.[ticker];
+    const rowObj = getRowByIndex(rows, index);
+    const series = rowToSeries(rowObj, quarters);
+    return { quarters, series };
   }
 
+  async getRevenue(ticker) { return this.getSeries(ticker, 'revenue'); }
+  async getNetIncome(ticker) { return this.getSeries(ticker, 'netIncome'); }
+  async getGrossMargin(ticker) { return this.getSeries(ticker, 'grossMargin'); }
 }
 
 export const stockService = new StockService();
