@@ -1,6 +1,6 @@
 /**
- * App bootstrap.
- * Mounts the root component to #app. No global plugins yet.
+ * Application entrypoint.
+ * Mounts the root Vue application.
  */
 import { createApp } from 'vue';
 import App from './App.vue';

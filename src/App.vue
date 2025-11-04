@@ -19,20 +19,42 @@
     <div class="chart">
       <RevenueBreakdownDonut />
     </div>
+
+    <div class="chart">
+      <NetIncomeTTMBar />
+    </div>
+
+    <div class="chart">
+      <GrossMarginBar />
+    </div>
+
+    <div class="chart">
+      <RevenueGrowthYoY />
+    </div>
   </section>
 </template>
 
 <script>
 /**
- * Dashboard root: KPIs, revenue line chart, and TTM donut.
+ * Root dashboard composition.
  */
 import CurrentRevenueWidget from './components/CurrentRevenueWidget.vue';
 import RevenueLineChart from './components/RevenueLineChart.vue';
 import RevenueBreakdownDonut from './components/RevenueBreakdownDonut.vue';
+import NetIncomeTTMBar from './components/NetIncomeTTMBar.vue';
+import GrossMarginBar from './components/GrossMarginBar.vue';
+import RevenueGrowthYoY from './components/RevenueGrowthYoY.vue';
 
 export default {
   name: 'App',
-  components: { CurrentRevenueWidget, RevenueLineChart, RevenueBreakdownDonut }
+  components: {
+    CurrentRevenueWidget,
+    RevenueLineChart,
+    RevenueBreakdownDonut,
+    NetIncomeTTMBar,
+    GrossMarginBar,
+    RevenueGrowthYoY
+  }
 };
 </script>
 

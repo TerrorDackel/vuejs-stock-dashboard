@@ -27,7 +27,9 @@ export function sumTTM(series) {
  * @returns {number|null} Percent or null if invalid.
  */
 export function pctChange(curr, prev) {
-  if (!isNum(curr) || !isNum(prev) || prev === 0) return null;
+  if (!isNum(curr) || !isNum(prev) || prev === 0) {
+    return null;
+  }
   return ((curr - prev) / prev) * 100;
 }
 
@@ -39,7 +41,9 @@ export function pctChange(curr, prev) {
  */
 export function yoySeries(series) {
   const out = [];
-  for (let i = 4; i < series.length; i++) out.push(pctChange(series[i], series[i - 4]));
+  for (let i = 4; i < series.length; i++) {
+    out.push(pctChange(series[i], series[i - 4]));
+  }
   return lastN(out, 4);
 }
 
@@ -48,4 +52,6 @@ export function yoySeries(series) {
  * @param {unknown} x - Any value.
  * @returns {x is number} True for finite numbers.
  */
-export function isNum(x) { return typeof x === 'number' && Number.isFinite(x); }
+export function isNum(x) {
+  return typeof x === 'number' && Number.isFinite(x);
+}

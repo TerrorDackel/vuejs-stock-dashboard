@@ -1,6 +1,7 @@
 /**
  * Brand colors per ticker for charts.
  * Keep high contrast and consistent mapping across widgets.
+ * @type {Record<string, string>}
  */
 export const BRAND = {
   AAPL: '#5AC8FA',
@@ -14,7 +15,9 @@ export const BRAND = {
 
 /**
  * Resolve a color for a ticker with fallback.
- * @param {string} t
- * @returns {string}
+ * @param {string} t - Stock ticker.
+ * @returns {string} Hex color.
  */
-export function colorOf(t) { return BRAND[t] || '#888888'; }
+export function colorOf(t) {
+  return BRAND[t] || '#888888';
+}

@@ -4,8 +4,10 @@
  * @returns {string}
  */
 export function fmtBillionsUSD(v) {
-  if (v === null || v === undefined || !Number.isFinite(v)) return 'n/a';
-  return `$${(v).toFixed(2)}B`;
+  if (v === null || v === undefined || !Number.isFinite(v)) {
+    return 'n/a';
+  }
+  return `$${v.toFixed(2)}B`;
 }
 
 /**
@@ -14,7 +16,9 @@ export function fmtBillionsUSD(v) {
  * @returns {string}
  */
 export function fmtPct(v) {
-  if (v === null || v === undefined || !Number.isFinite(v)) return 'n/a';
-  const s = v >= 0 ? '+' : '';
-  return `${s}${v.toFixed(2)}%`;
+  if (v === null || v === undefined || !Number.isFinite(v)) {
+    return 'n/a';
+  }
+  const sign = v >= 0 ? '+' : '';
+  return `${sign}${v.toFixed(2)}%`;
 }

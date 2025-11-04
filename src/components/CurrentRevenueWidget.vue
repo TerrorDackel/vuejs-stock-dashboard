@@ -25,8 +25,8 @@
 
 <script>
 /**
- * CurrentRevenueWidget
- * Shows latest quarterly revenue, absolute and relative change vs previous quarter.
+ * Displays the latest quarterly revenue for a company including
+ * absolute and relative delta vs the previous quarter.
  */
 import BaseCard from './BaseCard.vue';
 import { useFinancialData } from '../composables/useFinancialData';
@@ -37,7 +37,9 @@ export default {
   name: 'CurrentRevenueWidget',
   components: { BaseCard },
   props: {
+    /** Stock ticker, e.g. "AAPL". */
     ticker: { type: String, required: true },
+    /** Optional human-friendly label to display. */
     label: { type: String, default: '' }
   },
   data() {
@@ -47,17 +49,29 @@ export default {
     };
   },
   computed: {
-    companyLabel() { return this.label || this.ticker; },
-    lastIdx() { return this.getLastValidIndex(this.company?.revenue || []); },
-    quarterLabel() { return this.company ? (this.company.quarters[this.lastIdx] || 'n/a') : 'n/a'; },
+    /** Label to display in the header. */
+    companyLabel() {
+      return this.label || this.ticker;
+    },
+    /** Index of the last valid (numeric) revenue entry. */
+    lastIdx() {
+      return this.getLastValidIndex(this.company?.revenue || []);
+    },
+    /** Quarter label of the last valid revenue entry. */
+    quarterLabel() {
+      return this.company ? (this.company.quarters[this.lastIdx] || 'n/a') : 'n/a';
+    },
+    /** Latest revenue formatted in $ billions (2 decimals). */
     currentRevenue() {
       const v = this.company ? this.company.revenue[this.lastIdx] : null;
       return fmtBillionsUSD(v);
     },
+    /** Absolute delta vs previous quarter, formatted. */
     deltaAbs() {
       const [c, p] = this.currPrev();
       return fmtBillionsUSD(isNum(c) && isNum(p) ? c - p : null);
     },
+    /** Relative delta vs previous quarter, formatted in %. */
     deltaPct() {
       const [c, p] = this.currPrev();
       if (!isNum(c) || !isNum(p) || p === 0) return 'n/a';
@@ -68,13 +82,24 @@ export default {
     try {
       const { getCompany } = useFinancialData();
       this.company = await getCompany(this.ticker);
-    } catch { this.error = 'Failed to load data'; }
+    } catch {
+      this.error = 'Failed to load data';
+    }
   },
   methods: {
+    /**
+     * Find last index in array that contains a numeric value.
+     * @param {Array<unknown>} arr - Series values.
+     * @returns {number}
+     */
     getLastValidIndex(arr) {
       for (let i = arr.length - 1; i >= 0; i--) if (isNum(arr[i])) return i;
       return arr.length - 1;
     },
+    /**
+     * Get current and previous revenue values (may be nulls).
+     * @returns {[number|null, number|null]}
+     */
     currPrev() {
       if (!this.company) return [null, null];
       const i = this.lastIdx;

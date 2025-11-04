@@ -1,14 +1,17 @@
 <template>
-  <div class="card"><slot></slot></div>
+  <div class="card">
+    <slot></slot>
+  </div>
 </template>
 
 <script>
 /**
- * BaseCard
- * Layout wrapper for dashboard widgets.
- * Single responsibility: provide padded, rounded container.
+ * Base surface container used by all dashboard widgets.
+ * Provides a consistent background, padding and radius.
  */
-export default { name: 'BaseCard' };
+export default {
+  name: 'BaseCard'
+};
 </script>
 
 <style scoped>

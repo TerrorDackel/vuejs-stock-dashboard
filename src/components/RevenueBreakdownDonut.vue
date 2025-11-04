@@ -11,7 +11,8 @@
 
 <script>
 /**
- * Donut: TTM revenue per company. Tooltip shows TTM and newest quarter.
+ * Donut chart visualising each company's TTM revenue share.
+ * Tooltip shows absolute TTM and the latest quarter label.
  */
 import BaseCard from './BaseCard.vue';
 import { Doughnut } from 'vue-chartjs';
@@ -26,47 +27,71 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 export default {
   name: 'RevenueBreakdownDonut',
   components: { BaseCard, Doughnut },
-  data() { return { chartData: null, options: {}, ready: false, error: '' }; },
+  data() {
+    return {
+      chartData: null,
+      options: {},
+      ready: false,
+      error: ''
+    };
+  },
   async created() {
     try {
-      const payloads = await this.loadAll(['AAPL','AMZN','GOOG','META','MSFT','NVDA','TSLA']);
+      const payloads = await this.loadAll(['AAPL', 'AMZN', 'GOOG', 'META', 'MSFT', 'NVDA', 'TSLA']);
       const ok = payloads.filter(p => p && p.revenue.some(isNum));
-      if (!ok.length) { this.error = 'No revenue available'; return; }
+      if (!ok.length) {
+        this.error = 'No revenue available';
+        return;
+      }
       this.chartData = this.buildData(ok);
       this.options = this.buildOptions(ok);
       this.ready = true;
-    } catch { this.error = 'Failed to load TTM'; }
+    } catch {
+      this.error = 'Failed to load TTM';
+    }
   },
   methods: {
-    /** Load each ticker; ignore failures. */
+    /**
+     * Load company payloads; ignore individual failures.
+     * @param {string[]} tickers
+     * @returns {Promise<Array<{ticker:string, quarters:string[], revenue:number[] }>>}
+     */
     async loadAll(tickers) {
       const { getCompany } = useFinancialData();
       const res = await Promise.allSettled(tickers.map(t => getCompany(t)));
-      return res.map((r,i)=> r.status==='fulfilled'?{ ticker: tickers[i], ...r.value }:null).filter(Boolean);
+      return res.map((r, i) => (r.status === 'fulfilled' ? { ticker: tickers[i], ...r.value } : null)).filter(Boolean);
     },
-    /** Dataset for donut. */
+    /**
+     * Compose dataset for the doughnut chart.
+     * @param {Array<{ticker:string, revenue:number[]}>} payloads
+     * @returns {{labels:string[], datasets:any[]}}
+     */
     buildData(payloads) {
       const labels = payloads.map(p => p.ticker);
       const data = payloads.map(p => sumTTM(lastN(p.revenue, 4)));
       const bg = payloads.map(p => colorOf(p.ticker));
       return { labels, datasets: [{ data, backgroundColor: bg }] };
     },
-    /** Options with tooltip showing TTM and latest quarter. */
+    /**
+     * Build chart options incl. tooltip that shows latest quarter.
+     * @param {Array<{quarters:string[]}>} payloads
+     * @returns {import('chart.js').ChartOptions<'doughnut'>}
+     */
     buildOptions(payloads) {
       const latestQ = this.latestQuarter(payloads);
       return {
         responsive: true,
         plugins: {
           legend: { display: true, position: 'bottom' },
-          tooltip: {
-            callbacks: {
-              label: ctx => ` ${ctx.label}: ${fmtBillionsUSD(ctx.parsed)} (latest: ${latestQ})`
-            }
-          }
+          tooltip: { callbacks: { label: c => ` ${c.label}: ${fmtBillionsUSD(c.parsed)} (latest: ${latestQ})` } }
         }
       };
     },
-    /** Newest quarter string across payloads. */
+    /**
+     * Find the lexicographically latest quarter label (best effort).
+     * @param {Array<{quarters:string[]}>} payloads
+     * @returns {string}
+     */
     latestQuarter(payloads) {
       const list = payloads.map(p => p.quarters[p.quarters.length - 1]).filter(Boolean);
       return list.length ? list.sort().slice(-1)[0] : 'n/a';
@@ -76,21 +101,24 @@ export default {
 </script>
 
 <style scoped>
-.head { 
-  display:flex; 
-  justify-content:space-between; 
-  align-items:baseline; 
-  margin-bottom:8px; 
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
 }
-.title { 
-  margin:0; 
-  font-size:18px; 
+
+.title {
+  margin: 0;
+  font-size: 18px;
 }
-.err { 
-  color:#f66; 
+
+.err {
+  color: #f66;
 }
-:deep(canvas) { 
-  width:100% !important; 
-  height:360px !important; 
+
+:deep(canvas) {
+  width: 100% !important;
+  height: 360px !important;
 }
 </style>
